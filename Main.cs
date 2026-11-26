@@ -13,7 +13,7 @@ namespace Esp2Jpn
         Label lblStatus;
         Button btnBrowse, btnPatch, btnRestore, btnToggle;
         CheckBox chkRemove, chkNotes;
-        RadioButton rbZ, rbS, rbJ, rbZsdz, rbZsz, rbZzdz, rbAm, rbSo, rbSh, rbFl;
+        RadioButton rbZ, rbS, rbJ, rbZsdz, rbZsts, rbZsch, rbZsz, rbAm, rbSo, rbSh, rbFl;
         TextBox txtNotesPrev;
         HelpForm help;      // ventana "Atajos y fonemas" (si está abierta)
         bool loading;       // true mientras se cargan los controles desde Esp2Jpn.ini (no guardar ni registrar)
@@ -57,12 +57,13 @@ namespace Esp2Jpn
             rbJ = new RadioButton { Text = "j  (yeísmo)", Left = 308, Top = 18, Width = 140 };
             g5.Controls.AddRange(new Control[] { rbZ, rbS, rbJ });
 
-            // Sonido de z (minúscula / MAYÚSCULA), igual que en Esp2XSAMPA v2.8
-            var g7 = new GroupBox { Text = "Sonido de z  (minúscula / MAYÚSCULA)", Left = 10, Top = 234, Width = 600, Height = 48 };
-            rbZsdz = new RadioButton { Text = "z \u2192 s,  Z \u2192 dz", Left = 12, Top = 18, Width = 140, Checked = true };
-            rbZsz = new RadioButton { Text = "z \u2192 s,  Z \u2192 z", Left = 160, Top = 18, Width = 140 };
-            rbZzdz = new RadioButton { Text = "z \u2192 z,  Z \u2192 dz", Left = 308, Top = 18, Width = 140 };
-            g7.Controls.AddRange(new Control[] { rbZsdz, rbZsz, rbZzdz });
+            // Sonido de z / c (minúscula / MAYÚSCULA), igual que en Esp2XSAMPA v3.0
+            var g7 = new GroupBox { Text = "Sonido de z / c  (minúscula / MAYÚSCULA)", Left = 10, Top = 234, Width = 600, Height = 48 };
+            rbZsdz = new RadioButton { Text = "z \u2192 s,  Z / C \u2192 dz", Left = 12, Top = 18, Width = 140, Checked = true };
+            rbZsts = new RadioButton { Text = "z \u2192 s,  Z / C \u2192 ts", Left = 155, Top = 18, Width = 140 };
+            rbZsch = new RadioButton { Text = "z \u2192 s,  Z / C \u2192 tS", Left = 298, Top = 18, Width = 140 };
+            rbZsz = new RadioButton { Text = "z \u2192 s,  Z / C \u2192 z", Left = 441, Top = 18, Width = 140 };
+            g7.Controls.AddRange(new Control[] { rbZsdz, rbZsts, rbZsch, rbZsz });
 
             // Nombres de las notas (vocaloid7_notes.py)
             var g6 = new GroupBox { Text = "Nombres de las notas del piano roll", Left = 10, Top = 288, Width = 600, Height = 126 };
@@ -100,7 +101,7 @@ namespace Esp2Jpn
             txtDll.TextChanged += (s, e) => { RefreshStatus(); LoadSettings(); };
             foreach (RadioButton rb in new[] { rbZ, rbS, rbJ })
                 rb.CheckedChanged += (s, e) => { if (((RadioButton)s).Checked) YeismoChanged(); };
-            foreach (RadioButton rb in new[] { rbZsdz, rbZsz, rbZzdz })
+            foreach (RadioButton rb in new[] { rbZsdz, rbZsts, rbZsch, rbZsz })
                 rb.CheckedChanged += (s, e) => { if (((RadioButton)s).Checked) ZetaChanged(); };
             chkNotes.CheckedChanged += (s, e) => NotesChanged();
             foreach (RadioButton rb in new[] { rbAm, rbSo, rbSh, rbFl })
@@ -176,7 +177,7 @@ namespace Esp2Jpn
             else Log("Sonido de ll / y = " + v + " (se aplicará con «Aplicar / re-aplicar»).");
         }
 
-        string CurrentZeta() { return rbZsz.Checked ? "sz" : rbZzdz.Checked ? "zdz" : "sdz"; }
+        string CurrentZeta() { return rbZsz.Checked ? "sz" : rbZsch.Checked ? "sch" : rbZsts.Checked ? "sts" : "sdz"; }
 
         // Cambia el esquema de la z: vista previa inmediata y, si el parche ya está instalado, se guarda en zeta= de Esp2Jpn.ini.
         void ZetaChanged()
@@ -187,9 +188,9 @@ namespace Esp2Jpn
             if (loading) return;
             string p = txtDll.Text.Trim();
             if (p.Length > 0 && Patcher.IniExists(p))
-                Log(Patcher.IniSet(p, "zeta", v) ? "Sonido de z / Z = " + Patcher.ZetaLabel(v) + " (guardado en Esp2Jpn.ini, efecto inmediato)."
+                Log(Patcher.IniSet(p, "zeta", v) ? "Sonido de z / c = " + Patcher.ZetaLabel(v) + " (guardado en Esp2Jpn.ini, efecto inmediato)."
                                                 : "No se pudo escribir Esp2Jpn.ini (¿permisos?). Ejecuta como administrador.");
-            else Log("Sonido de z / Z = " + Patcher.ZetaLabel(v) + " (se aplicará con «Aplicar / re-aplicar»).");
+            else Log("Sonido de z / c = " + Patcher.ZetaLabel(v) + " (se aplicará con «Aplicar / re-aplicar»).");
         }
 
         void NotesChanged()
@@ -213,7 +214,7 @@ namespace Esp2Jpn
                 if (o.Notation == "solfege") rbSo.Checked = true; else rbAm.Checked = true;
                 if (o.Accidentals == "flats") rbFl.Checked = true; else rbSh.Checked = true;
                 string z = o.Zeta ?? "sdz";
-                if (z == "sz") rbZsz.Checked = true; else if (z == "zdz") rbZzdz.Checked = true; else rbZsdz.Checked = true;
+                if (z == "sz") rbZsz.Checked = true; else if (z == "sch") rbZsch.Checked = true; else if (z == "sts") rbZsts.Checked = true; else rbZsdz.Checked = true;
                 Hook.SetYeismo(y);
                 Hook.SetZeta(z);
             }
@@ -307,7 +308,7 @@ namespace Esp2Jpn
                 Console.WriteLine(rep);
                 return ok ? 0 : 1;
             }
-            // Modo consola:  Esp2JpnPatcher.exe --cli patch|restore|status "ruta\VOCALOID7.dll"  [ll=Z|S|j] [zeta=sdz|sz|zdz] [notes=none|american|solfege] [acc=sharps|flats]
+            // Modo consola:  Esp2JpnPatcher.exe --cli patch|restore|status "ruta\VOCALOID7.dll"  [ll=Z|S|j] [zeta=sdz|sts|sch|sz] [notes=none|american|solfege] [acc=sharps|flats]
             if (args.Length >= 3 && args[0] == "--cli")
             {
                 try { AttachConsole(-1); } catch { }
@@ -321,7 +322,7 @@ namespace Esp2Jpn
                     string outp = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Esp2Jpn-dump.txt");
                     File.WriteAllText(outp, d); Console.WriteLine("Escrito: " + outp); return 0;
                 }
-                PatchOptions po = PatchOptions.FromIni(dll);      // opciones extra:  ll=Z|S|j  zeta=sdz|sz|zdz  notes=none|american|solfege  acc=sharps|flats
+                PatchOptions po = PatchOptions.FromIni(dll);      // opciones extra:  ll=Z|S|j  zeta=sdz|sts|sch|sz  notes=none|american|solfege  acc=sharps|flats
                 for (int i = 3; i < args.Length; i++)
                 { int eq = args[i].IndexOf('='); if (eq > 0) po.Apply(args[i].Substring(0, eq), args[i].Substring(eq + 1)); }
                 PatchResult r = args[1] == "patch" ? Patcher.Patch(dll, hook, log, po)

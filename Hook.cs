@@ -1,5 +1,5 @@
 // Esp2JpnHook - Conversor de letra española a fonemas X-SAMPA de bancos japoneses clásicos.
-// v3: la conversión es el g2p de Esp2XSAMPA.py (v2.8), portado a C# sin cambios de reglas.
+// v3: la conversión es el g2p de Esp2XSAMPA.py (v3.0), portado a C# sin cambios de reglas.
 //     (la tabla anterior, basada en Esp2Jpn.lua, ya no se usa).
 using System;
 using System.Collections.Generic;
@@ -363,7 +363,7 @@ namespace Esp2Jpn
         //   words=1|0       1 = varias palabras separadas por espacio (Insert Lyrics) -> una palabra por nota
         //   case=1|0        1 = las mayúsculas U I J G R C Y Z A E O tienen el significado de Esp2XSAMPA
         //   ll=Z|S|j        sonido de "ll" y de "y" consonántica (zheísmo / sheísmo / yeísmo)
-        //   zeta=sdz|sz|zdz esquema de la z (minúscula/MAYÚSCULA): sdz = s/dz (predeterminado), sz = s/z, zdz = z/dz
+        //   zeta=sdz|sts|sch|sz esquema de z y C (minúscula/MAYÚSCULA): sdz = s/dz (predeterminado), sts = s/ts, sch = s/tS, sz = s/z
         // ------------------------------------------------------------------
         static DateTime _stamp; static bool _enabled = true, _log = false, _anyLang = false, _noSplit = true, _caseMarks = true, _words = true;
         static string _yeismo = "Z", _zeta = "sdz";
@@ -398,7 +398,7 @@ namespace Esp2Jpn
                 else if (k == "case") _caseMarks = !(v == "0" || v == "false" || v == "no");
                 else if (k == "words") _words = !(v == "0" || v == "false" || v == "no");
                 else if (k == "ll") { if (v == "z") _yeismo = "Z"; else if (v == "s") _yeismo = "S"; else if (v == "j") _yeismo = "j"; }
-                else if (k == "zeta") { if (v == "sdz" || v == "sz" || v == "zdz") _zeta = v; }
+                else if (k == "zeta") { if (v == "sdz" || v == "sts" || v == "sch" || v == "sz") _zeta = v; }
                 else if (k == "langs")
                 {
                     if (v == "*") _anyLang = true;
@@ -421,12 +421,15 @@ namespace Esp2Jpn
             if (v == "Z" || v == "S" || v == "j") _yeismo = v;
         }
 
-        // Solo para la vista previa del parcheador: fija el esquema de la z (sdz, sz o zdz) sin leer Esp2Jpn.ini.
+        // Solo para la vista previa del parcheador: fija el esquema de z y C (sdz, sts, sch o sz) sin leer Esp2Jpn.ini.
         // (Dentro de VOCALOID7 el valor sale de zeta= en Esp2Jpn.ini.)
         public static void SetZeta(string v)
         {
-            if (v == "sdz" || v == "sz" || v == "zdz") _zeta = v;
+            if (v == "sdz" || v == "sts" || v == "sch" || v == "sz") _zeta = v;
         }
+
+        // Fonema de la Z mayúscula y de la C mayúscula ante e / i, según el esquema (zeta=): dz, ts o z.
+        static string ZetaCap() { return _zeta == "sts" ? "ts" : _zeta == "sch" ? "tS" : _zeta == "sz" ? "z" : "dz"; }
 
         public static string LogDir()
         {
@@ -446,7 +449,7 @@ namespace Esp2Jpn
         }
 
         // ==================================================================
-        //  Español -> X-SAMPA para VOCALOID japonés   (port de Esp2XSAMPA.py v2.8)
+        //  Español -> X-SAMPA para VOCALOID japonés   (port de Esp2XSAMPA.py v3.0)
         // ==================================================================
         // Fonemas que produce (los únicos que acepta una voz japonesa):
         //   vocales:      a i M e o
@@ -456,7 +459,7 @@ namespace Esp2Jpn
         //   U = M siempre | I = i siempre (nunca j) | J (y G de gi) = C ante i, p\ M ante u
         //   R = rr (4 4), RR = 4 4 4 4  | Z = variante de z       | A E O (última vocal) tras C+i: absorbe la i
         //   Y ante vocal (inicio de sílaba) = j siempre, en todos los modos de ll / y
-        //   C ante e / i (Ce, Ci) = dz siempre, en lugar de s  (Ca, Co, Cu y Ch no cambian)
+        //   C ante e / i (Ce, Ci) cambia igual que la Z mayúscula, según zeta=: dz, ts, tS o z  (Ca, Co, Cu y Ch no cambian)
         // Minúsculas: sh = S siempre (sha -> S a), igual que ch = tS.
         const char U_CAP = '\u0003', DIERESIS_CAP = '\u0004', J_CAP = '\u0005', G_CAP = '\u0006',
                    R_CAP = '\u0007', I_CAP = '\u000e', Z_CAP = '\u0010', Y_CAP = '\u0011', C_CAP = '\u0013', I_MARCA = '\u0012';
@@ -524,7 +527,7 @@ namespace Esp2Jpn
                 if (c == 'c' || c == C_CAP)
                 {
                     if (sig == 'h') { o.Add("tS"); i += 2; continue; }
-                    if (c == C_CAP && suave) o.Add("dz");                   // Ce, Ci con C mayúscula: siempre dz
+                    if (c == C_CAP && suave) o.Add(ZetaCap());               // Ce, Ci con C mayúscula: igual que la Z mayúscula
                     else o.Add(suave ? "s" : "k");
                 }
                 else if (c == 'q')
@@ -595,8 +598,8 @@ namespace Esp2Jpn
                     if (sig == 'h') { o.Add("S"); i += 2; continue; }       // sh: siempre S (sha -> S a)
                     o.Add("s");
                 }
-                else if (c == 'z') o.Add(_zeta == "zdz" ? "z" : "s");
-                else if (c == Z_CAP) o.Add(_zeta == "sz" ? "z" : "dz");   // Z en mayúscula
+                else if (c == 'z') o.Add("s");
+                else if (c == Z_CAP) o.Add(ZetaCap());                   // Z en mayúscula
                 else if (c == 'v') o.Add("b");
                 else if (c == 'f') o.Add(F_SUAVE);
                 else if (c == 'x') { o.Add("k"); o.Add("s"); }
@@ -668,7 +671,7 @@ namespace Esp2Jpn
         }
 
         // ------------------------------------------------------------------
-        // Autotest: compara con los resultados del script Python original (Esp2XSAMPA.py v2.8)
+        // Autotest: compara con los resultados del script Python original (Esp2XSAMPA.py v3.0)
         // con la configuración por defecto (ll=Z, zeta=sdz, case=1).
         //   Esp2JpnPatcher.exe --selftest
         // ------------------------------------------------------------------
@@ -823,7 +826,7 @@ namespace Esp2Jpn
                     { "Z", "hoY", "o j" }, { "S", "hoY", "o j" },
                     // sh: S en todos los modos
                     { "Z", "sha", "S a" }, { "S", "sha", "S a" }, { "j", "sha", "S a" },
-                    // C mayúscula ante e / i: dz en todos los modos
+                    // C mayúscula ante e / i: igual que la Z mayúscula; con el esquema predeterminado (sdz) da dz en todos los modos de ll / y
                     { "Z", "Ce", "dz e" }, { "S", "Ce", "dz e" }, { "j", "Ci", "dz i" }
                 };
                 for (int k = 0; k < llv.GetLength(0); k++)
@@ -834,12 +837,17 @@ namespace Esp2Jpn
                     if (got != llv[k, 2]) { bad++; sb.AppendLine("FALLO  ll=" + llv[k, 0] + "  " + llv[k, 1] + "  esperado [" + llv[k, 2] + "]  obtenido [" + got + "]"); }
                 }
 
-                // esquemas de la z (zeta=sdz|sz|zdz): minúscula / MAYÚSCULA
+                // esquemas de z y C (zeta=sdz|sts|sch|sz): minúscula / MAYÚSCULA (la C mayúscula ante e / i sigue a la Z mayúscula)
                 string[,] zv = new string[,]
                 {
                     { "sdz", "zapato", "s a p a t o" }, { "sdz", "Zapato", "dz a p a t o" },
+                    { "sdz", "ce", "s e" }, { "sdz", "Ce", "dz e" }, { "sdz", "Ci", "dz i" }, { "sdz", "Cielo", "dz j e 4 o" }, { "sdz", "Ca", "k a" },
+                    { "sts", "zapato", "s a p a t o" }, { "sts", "Zapato", "ts a p a t o" },
+                    { "sts", "ce", "s e" }, { "sts", "Ce", "ts e" }, { "sts", "Ci", "ts i" }, { "sts", "Cielo", "ts j e 4 o" }, { "sts", "haCer", "a ts e 4" }, { "sts", "Ca", "k a" }, { "sts", "Cha", "tS a" },
+                    { "sch", "zapato", "s a p a t o" }, { "sch", "Zapato", "tS a p a t o" },
+                    { "sch", "ce", "s e" }, { "sch", "Ce", "tS e" }, { "sch", "Ci", "tS i" }, { "sch", "Cielo", "tS j e 4 o" }, { "sch", "Ca", "k a" }, { "sch", "Cha", "tS a" },
                     { "sz",  "zapato", "s a p a t o" }, { "sz",  "Zapato", "z a p a t o" },
-                    { "zdz", "zapato", "z a p a t o" }, { "zdz", "Zapato", "dz a p a t o" }
+                    { "sz",  "ce", "s e" }, { "sz",  "Ce", "z e" }, { "sz",  "Ci", "z i" }, { "sz",  "Cielo", "z j e 4 o" }, { "sz",  "Ca", "k a" }
                 };
                 for (int k = 0; k < zv.GetLength(0); k++)
                 {
