@@ -1,0 +1,171 @@
+Esp2Jpn para VOCALOID7  -  interfaz clásica   (v5.0)
+====================================================
+
+QUÉ HACE
+  Parchea VOCALOID7.dll para que, al escribir una letra en español en UNA nota de un banco
+  japonés clásico (idioma de la nota = Japonés), los fonemas X-SAMPA se rellenen solos con la
+  lógica de Esp2XSAMPA.py (v2.6), p. ej.:
+     hola -> o 4 a     cantando -> k a n t a n d o     cielo -> s j e 4 o     ñu -> J M
+     rico -> 4' i k o  tIene -> t' i e n e             piO -> p' o
+  Solo actúa si la nota es de idioma japonés y la letra es texto latino de UNA palabra/sílaba.
+  Si algo falla, el editor se comporta exactamente como antes.
+
+NOVEDADES v5.0  (Esp2JpnPatcher v1.7)
+  Vuelve la opción de la z, ahora con TRES esquemas (igual que Esp2XSAMPA v2.6), en la ventana "Sonido de z (minúscula / MAYÚSCULA)":
+     z -> s,  Z -> dz   (nuevo, PREDETERMINADO)   za -> s a    ZA -> dz a
+     z -> s,  Z -> z                              za -> s a    ZA -> z a   (el comportamiento de la v4.9)
+     z -> z,  Z -> dz                             za -> z a    ZA -> dz a
+  Se guarda en zeta=sdz|sz|zdz de Esp2Jpn.ini (efecto inmediato si el parche ya está instalado) y también se puede pasar en
+  modo consola (zeta=...). Si tu Esp2Jpn.ini no tiene zeta=, se usa sdz: ahora la Z mayúscula da dz en lugar de z.
+  Atajos y fonemas: la sección de Z es la de Esp2XSAMPA v2.6 (los tres esquemas, con ejemplos).
+  IMPORTANTE: recompilar y volver a pulsar "Aplicar / re-aplicar" para que VOCALOID7 use el Esp2JpnHook.dll nuevo.
+
+NOVEDADES v4.9
+  Se quitó la opción zeta= (esquema z -> z, Z -> dz): ahora la z minúscula da siempre s y la Z mayúscula da z, igual que
+  en Esp2XSAMPA v2.5. Si tu Esp2Jpn.ini todavía tiene la línea zeta=, simplemente se ignora. El texto de Atajos y fonemas
+  ya no habla de esquemas de la z: solo explica la diferencia entre z y Z, como con las demás letras.
+
+NOVEDADES v4.8
+  La ventana ya no lleva el subtítulo "Parcheador". Dos R mayúsculas juntas (RR) dan 4 4 4 4: una erre fuertemente
+  pronunciada (una sola R sigue dando 4 4). Corregida la fuente del texto de Atajos y fonemas.
+  Nuevo ícono (Esp2Jpn.ico), incrustado en Esp2JpnPatcher.exe y usado en las ventanas.
+
+NOVEDADES v4.7
+  Menú Ayuda > Atajos y fonemas (también con F1), adaptado de Esp2XSAMPA v2.4. Es una ventana con el mismo texto
+  de reglas (minúsculas, mayúsculas U I J R Z A E O, esquemas de la z, lista de fonemas del VOCALOID japonés) y el mismo
+  formato (encabezados, letras en mayúscula resaltadas, flechas). Se cierra con Esc o con el botón Cerrar.
+  Adaptado al parcheador: se quitaron las teclas globales (F9 / Ctrl+Alt+Q), bandeja, temas, "Restaurar
+  predeterminados" e inicio con Windows, que aquí no existen, y se añadió lo propio de este programa: cómo se escribe
+  en VOCALOID7 (una palabra por nota, Insert Lyrics, guion), el sonido de ll / y, los nombres de nota, dónde se guardan
+  los ajustes (Esp2Jpn.ini: case=, zeta=, ll=) y que VOCALOID7 debe estar cerrado al aplicar.
+  El menú incluye también el crédito "Creado por Liper" (deshabilitado, como en Esp2XSAMPA).
+  Nuevo archivo: Help.cs (ya incluido en build.sh y build.bat). IMPORTANTE: recompilar.
+
+NOVEDADES v4.6
+  1. "Sonido de ll / y" en la ventana (igual que en Esp2XSAMPA v2.4): Z (zheísmo), S (sheísmo) o j (yeísmo).
+     Afecta a "ll" y a la "y" consonántica (llave, yo, estrella, lluvia...). El cambio se guarda en ll= de
+     Esp2Jpn.ini y tiene efecto inmediato si el parche ya está instalado; si no, se aplica al pulsar
+     "Aplicar / re-aplicar". La casilla de "Probar conversión" ya refleja la opción elegida.
+  2. Nombres de las notas del piano roll (funciones de vocaloid7_notes.py integradas):
+       - Americana (C D E F G A B)  o  Solfeo (Do Re Mi Fa Sol La Si)
+       - Sostenidos (C♯ D♯...)  o  Bemoles (D♭ E♭...)
+     Marca "Cambiar los nombres de las notas al aplicar el parche" y elige el estilo; se ve una vista previa.
+     Cambia el nombre que muestra el cursor del piano roll y la etiqueta "C" de octava del teclado.
+     Se aplica en la misma pasada que el parche de fonemas, siempre desde la copia original
+     (VOCALOID7.dll.esp2jpn.bak), así que se puede cambiar de estilo cuando quieras con "Aplicar / re-aplicar",
+     y "Restaurar original" devuelve también los nombres originales. Si esta versión de VOCALOID7 no tiene el
+     código esperado, el parche de fonemas se aplica igualmente y se avisa de que los nombres no cambiaron.
+     Si tu DLL ya fue modificado con vocaloid7_notes.py (sección .nnotes), el parcheador lo detecta y pide
+     restaurar primero el original (VOCALOID7.dll.bak), porque este programa ya hace ese cambio.
+  3. VOCALOID7 debe estar CERRADO al aplicar o restaurar. El parcheador lo comprueba (también en modo
+     consola); si está abierto muestra un aviso con "Reintentar" y no toca nada. Se considera abierto solo un
+     proceso llamado VOCALOID7* o que tenga cargada esa VOCALOID7.dll (otros programas en la misma carpeta,
+     como Esp2XSAMPA.exe, no cuentan). Tras aplicar ya no se pide
+     "reiniciar": basta con abrir VOCALOID7 normalmente.
+  Consola:  Esp2JpnPatcher.exe --cli patch "ruta\VOCALOID7.dll" [ll=Z|S|j] [notes=none|american|solfege] [acc=sharps|flats]
+  IMPORTANTE: recompilar (sh build.sh / build.bat). Sin compilar ni probar en VOCALOID7 real.
+
+NOVEDADES v4.5  (Insert Lyrics / varias palabras: UNA palabra por nota)
+  Síntoma: al pegar "En un dí a des tos ..." en Insert Lyrics, el motor japonés ignoraba los espacios como
+  separador de notas y troceaba cada palabra en moras ("E n u n d í a de s to s ...").
+  Corrección: si la letra tiene varios espacios/palabras y es texto latino en una nota de idioma permitido,
+  End() reparte la palabra i en la nota i (la editada y sus siguientes, cadena Next), cada una con sus fonemas
+  completos y el candado. Las notas que el motor haya ensuciado más allá de la última palabra se restauran.
+  Begin ahora recibe también la letra (guarda hasta lyrics.Length notas siguientes cuando hay varias palabras).
+  Esp2Jpn.ini: words=1 (por defecto) activa esto; words=0 deja el comportamiento del motor.
+  Si no cambia nada: log=1 en Esp2Jpn.ini, repite Insert Lyrics y envía Esp2Jpn.log. Cada línea "Begin" lleva
+  "pila:" con los métodos que llamaron, y la línea "Distribute:" indica si el reparto se ejecutó.
+  Si no hay ninguna línea Begin con el texto completo, Insert Lyrics no pasa por estos métodos: envía además
+  el Esp2Jpn-dump.txt (--cli dump), que ahora lista también los métodos Insert/Split/Syllable/Token/Divide.
+  IMPORTANTE: recompilar (sh build.sh) y volver a pulsar "Aplicar / re-aplicar". Sin compilar ni probar en VOCALOID7 real.
+
+NOVEDADES v4  (reparto de la LETRA entre notas)
+  Síntoma: al escribir "holaquetal" en una nota, los fonemas quedaban bien en esa nota, pero la letra
+  se recortaba a la primera sílaba ("ho") y el resto ("laquetal") aparecía en la nota siguiente.
+  Corrección: el parche llama a Bridge.Begin() al entrar y a Bridge.End() al salir de las tres capas
+  (WIVSMNoteExtension.SetLyricsAndPhonemesAndNormalizePhonemes, ...ByAutoPriority, ...ByLangID).
+  Begin guarda letra, fonemas y candado de la nota siguiente. End (solo la capa más externa), si la letra
+  es una que este parche convierte: (1) restaura la letra COMPLETA en la nota editada, (2) devuelve la nota
+  siguiente a su estado anterior, (3) vuelve a fijar los fonemas completos y el candado.
+  Si tras actualizar sigue repartiéndose, pon log=1 en Esp2Jpn.ini y envía
+  %LOCALAPPDATA%\Esp2Jpn\Esp2Jpn.log (la línea "End: ..." indica si la reparación se ejecutó).
+  Esp2Jpn.ini: log=1 activa ese registro (por defecto desactivado).
+  v4.4: según el volcado del DLL, el motor reparte la letra por WIVSMNote.Next (el parámetro nextNote llega null).
+  Begin guarda ahora hasta 8 notas siguientes (cadena Next) y End restaura las que el reparto haya cambiado.
+  También se parchea la sobrecarga SetLyricsAndPhonemesAndNormalizePhonemes(note, lyrics) de 2 parámetros
+  (la usa el cuadro de edición de letra), para que End corra después de la normalización.
+  Diagnóstico: Esp2JpnPatcher.exe --cli dump "ruta\\VOCALOID7.dll"  escribe Esp2Jpn-dump.txt (firmas y llamadores).
+  IMPORTANTE: hay que recompilar (sh build.sh) y volver a pulsar "Aplicar / re-aplicar".
+
+NOVEDADES v3
+  1. El conversor es el g2p de Esp2XSAMPA.py portado tal cual (mismas reglas, mismos fonemas).
+     Ya no se usa la tabla de Esp2Jpn.lua.
+  2. "No repartir": una sílaba o palabra larga en una sola nota deja TODOS sus fonemas en esa nota.
+     Los métodos del servicio de fonemas (SetLyricsAndPhonemesByAutoPriority / ByLangID) reciben
+     la nota siguiente (nextNote) y el motor nativo la usa para repartir sílabas entre notas
+     contiguas. El parche ahora escribe null en nextNote (parámetro ref) al entrar y lo restaura al salir, solo cuando el conversor se encarga de
+     la letra; después el postfix de siempre fija los fonemas completos y activa el candado.
+     (Se usan solo los métodos que el parcheador ya tocaba; no se parchea nada más del DLL.)
+
+USO
+  1. Cierra VOCALOID7 por completo (debe estar cerrado al aplicar o restaurar; el parcheador lo comprueba).
+  2. Ejecuta Esp2JpnPatcher.exe (pide administrador automáticamente: lleva el manifest incrustado).
+  3. Examinar... -> VOCALOID7.dll. Elige el sonido de ll / y y, si quieres, los nombres de nota.
+  4. "Aplicar / re-aplicar". Cuando termine, abre VOCALOID7 con normalidad.
+  - Si venías de una versión anterior: pulsa "Aplicar / re-aplicar" (retira la vieja y pone la nueva).
+    El estado mostrará "PARCHEADO con versión anterior" mientras falte.
+  - "Restaurar original" devuelve el DLL exacto desde VOCALOID7.dll.esp2jpn.bak y borra ese .bak.
+    (Tras restaurar, el siguiente "Aplicar" crea una copia de seguridad nueva.)
+  - "Activar / Desactivar" cambia enabled=1/0 en Esp2Jpn.ini sin reiniciar.
+  - Consola:  Esp2JpnPatcher.exe --cli patch|restore|status "ruta\VOCALOID7.dll"
+  - Autotest: Esp2JpnPatcher.exe --selftest   (compara el conversor con las salidas del script Python)
+
+COMPILAR (Mono mcs):   sh build.sh    -> carpeta dist/
+  Necesita Mono.Cecil.dll (viene en dist/; build.sh lo copia a la raíz si hace falta).
+  Los .exe/.dll de dist/ de la versión anterior se han quitado: hay que recompilar.
+
+ARCHIVOS (mantener juntos)
+  Esp2JpnPatcher.exe, Mono.Cecil.dll (MIT), Esp2JpnHook.dll
+  El parche copia Esp2JpnHook.dll y Esp2Jpn.ini junto a VOCALOID7.dll.
+  Requiere Windows con .NET Framework 4.x (incluido en Windows 10/11).
+
+Esp2Jpn.ini (junto a VOCALOID7.dll; se relee al cambiarlo)
+  enabled=1|0     activa/desactiva la conversión
+  langs=0         idioma de nota a convertir (0 = japonés, * = todos, o lista 0,1)
+  nosplit=1|0     1 = todos los fonemas en la nota donde se escribe la letra (por defecto)
+  words=1|0       1 = varias palabras (Insert Lyrics) -> una palabra por nota (por defecto)
+  case=1|0        1 = las mayúsculas U I J G R Z A E O significan lo mismo que en Esp2XSAMPA
+                  (por defecto). 0 = se ignoran (todo se lee como minúscula).
+  ll=Z|S|j        sonido de "ll" y de "y" consonántica (Z zheísmo, S sheísmo, j yeísmo); se cambia desde la ventana
+  zeta=sdz|sz|zdz esquema de la z (minúscula / MAYÚSCULA): sdz = s / dz (por defecto), sz = s / z, zdz = z / dz;
+                  se cambia desde la ventana
+  notenames=1|0, notation=american|solfege, accidentals=sharps|flats
+                  los lee solo el parcheador para recordar tu elección de nombres de nota (el hook los ignora)
+
+MAYÚSCULAS (con case=1; iguales a Bloq Mayús/Shift en el script)
+  U = M siempre (CUANDO -> k M a n d o)      I = i siempre, nunca j (baIle -> b a i 4 e)
+  J / G(i) ante i = C, ante u = p\ M         R = rr (RO -> 4 4 o)      RR = 4 4 4 4 (erre fuerte)      Z = dz (con zeta=sdz; z -> s, Z -> dz)
+  A E O (última vocal) tras consonante + i: la i se absorbe (piO -> p' o)
+  OJO: una mayúscula inicial "por costumbre" también cuenta (Rosa -> 4 4 o s a, Zapato -> dz a ...).
+  Si tus letras llevan mayúscula inicial sin querer, pon case=0.
+
+LIMITACIONES / A TENER EN CUENTA
+  * Probado aquí: la lógica del conversor (equivalencia con el script Python en 900 000 casos
+    aleatorios con un espejo de la estructura del C#) y la lectura de firmas del DLL.
+    NO se ha compilado ni ejecutado el C#/IL nuevo, ni dentro de VOCALOID7 real (no hay Mono ni Windows
+    aquí). Compila, ejecuta --selftest y prueba primero con un proyecto de prueba.
+  * "No repartir" asume que el motor nativo acepta nextNote = null (es el caso normal de la última
+    nota de una secuencia; v3.1: se escribe en el valor del ref, no en la referencia). Si al escribir una letra aparece una excepción, pon nosplit=0 y avisa.
+  * Si la nota ya tiene otro idioma antes de que el motor lo fije (ByAutoPriority usa note.LangID de
+    entrada), la guarda puede no activarse; el comportamiento es entonces el de la v2.
+  * El texto con espacios no se convierte aquí: si el editor lo reparte en varias notas, cada nota
+    recibe su palabra y se convierte por separado. Guion y apóstrofe dentro de una palabra solo
+    unen fonemas (can-tan-do -> todo en una nota).
+  * Una actualización de VOCALOID7 reemplaza el DLL: vuelve a aplicar el parche (con VOCALOID7 cerrado).
+  * Si el DLL tiene firma Authenticode, el parche la invalida.
+  * Con el parche activo, las letras en romaji (ka, shi...) en notas japonesas también se leen como
+    español ("shi" -> s i). Usa Desactivar para romaji.
+  * No se tocan otras vías (p. ej. segmentación G2PA).
+  * Nombres de nota: la lógica (tablas y búsqueda del código) es un port de vocaloid7_notes.py; las 4 tablas se
+    comprobaron contra el script, pero la búsqueda en el DLL con Cecil no se ha podido probar aquí (sin Windows
+    ni VOCALOID7.dll). Si no la encuentra, no cambia nada y lo avisa.
