@@ -1,5 +1,5 @@
 // Esp2JpnHook - Conversor de letra española a fonemas X-SAMPA de bancos japoneses clásicos.
-// v3: la conversión es el g2p de Esp2XSAMPA.py (v2.6), portado a C# sin cambios de reglas.
+// v3: la conversión es el g2p de Esp2XSAMPA.py (v2.8), portado a C# sin cambios de reglas.
 //     (la tabla anterior, basada en Esp2Jpn.lua, ya no se usa).
 using System;
 using System.Collections.Generic;
@@ -361,7 +361,7 @@ namespace Esp2Jpn
         //   log=1|0         escribe Esp2Jpn.log (diagnóstico)
         //   nosplit=1|0     1 = todos los fonemas en la nota donde se escribe la letra (no repartir)
         //   words=1|0       1 = varias palabras separadas por espacio (Insert Lyrics) -> una palabra por nota
-        //   case=1|0        1 = las mayúsculas U I J G R Z A E O tienen el significado de Esp2XSAMPA
+        //   case=1|0        1 = las mayúsculas U I J G R C Y Z A E O tienen el significado de Esp2XSAMPA
         //   ll=Z|S|j        sonido de "ll" y de "y" consonántica (zheísmo / sheísmo / yeísmo)
         //   zeta=sdz|sz|zdz esquema de la z (minúscula/MAYÚSCULA): sdz = s/dz (predeterminado), sz = s/z, zdz = z/dz
         // ------------------------------------------------------------------
@@ -446,7 +446,7 @@ namespace Esp2Jpn
         }
 
         // ==================================================================
-        //  Español -> X-SAMPA para VOCALOID japonés   (port de Esp2XSAMPA.py v2.6)
+        //  Español -> X-SAMPA para VOCALOID japonés   (port de Esp2XSAMPA.py v2.8)
         // ==================================================================
         // Fonemas que produce (los únicos que acepta una voz japonesa):
         //   vocales:      a i M e o
@@ -455,8 +455,11 @@ namespace Esp2Jpn
         // Mayúsculas con significado (igual que Bloq Mayús/Shift en el script):
         //   U = M siempre | I = i siempre (nunca j) | J (y G de gi) = C ante i, p\ M ante u
         //   R = rr (4 4), RR = 4 4 4 4  | Z = variante de z       | A E O (última vocal) tras C+i: absorbe la i
+        //   Y ante vocal (inicio de sílaba) = j siempre, en todos los modos de ll / y
+        //   C ante e / i (Ce, Ci) = dz siempre, en lugar de s  (Ca, Co, Cu y Ch no cambian)
+        // Minúsculas: sh = S siempre (sha -> S a), igual que ch = tS.
         const char U_CAP = '\u0003', DIERESIS_CAP = '\u0004', J_CAP = '\u0005', G_CAP = '\u0006',
-                   R_CAP = '\u0007', I_CAP = '\u000e', Z_CAP = '\u0010', I_MARCA = '\u0012';
+                   R_CAP = '\u0007', I_CAP = '\u000e', Z_CAP = '\u0010', Y_CAP = '\u0011', C_CAP = '\u0013', I_MARCA = '\u0012';
         const string IM = "\u0012";
         const string R_L_JAPONESA = "4", JOTA = "h", JOTA_FUERTE = "C", VOCAL_U = "M", F_SUAVE = "p\\";
         const string SUAVES = "eiI\u000e\u0012";                       // vocales que suavizan c y g
@@ -504,7 +507,7 @@ namespace Esp2Jpn
             });
             palabra = palabra.Replace('U', U_CAP).Replace('\u00dc', DIERESIS_CAP);
             palabra = palabra.Replace('J', J_CAP).Replace('G', G_CAP).Replace('R', R_CAP);
-            palabra = palabra.Replace('Z', Z_CAP);
+            palabra = palabra.Replace('Z', Z_CAP).Replace('Y', Y_CAP).Replace('C', C_CAP);
             palabra = palabra.Replace('I', I_CAP);            // antes de normalizar (que pasa a minúsculas)
             string w = Normalizar(palabra);
             int n = w.Length;
@@ -518,10 +521,11 @@ namespace Esp2Jpn
                 char sig2 = i + 2 < n ? w[i + 2] : '\0';
                 bool suave = In(SUAVES, sig);
 
-                if (c == 'c')
+                if (c == 'c' || c == C_CAP)
                 {
                     if (sig == 'h') { o.Add("tS"); i += 2; continue; }
-                    o.Add(suave ? "s" : "k");
+                    if (c == C_CAP && suave) o.Add("dz");                   // Ce, Ci con C mayúscula: siempre dz
+                    else o.Add(suave ? "s" : "k");
                 }
                 else if (c == 'q')
                 {
@@ -547,7 +551,9 @@ namespace Esp2Jpn
                     if (doble || c == R_CAP) { o.Add(R_L_JAPONESA); o.Add(R_L_JAPONESA); i += doble ? 2 : 1; continue; }
                     o.Add(R_L_JAPONESA);
                 }
-                else if (c == 'y')
+                else if (c == Y_CAP && sig != '\0' && In(VOCALES, sig))
+                    o.Add("j");                                          // Y en mayúscula al inicio de sílaba: siempre j
+                else if (c == 'y' || c == Y_CAP)
                 {
                     if (sig == '\0' || !In(VOCALES, sig))
                     {
@@ -584,6 +590,11 @@ namespace Esp2Jpn
                     }
                     o.Add(Jota(fuerte, sig));
                 }
+                else if (c == 's')
+                {
+                    if (sig == 'h') { o.Add("S"); i += 2; continue; }       // sh: siempre S (sha -> S a)
+                    o.Add("s");
+                }
                 else if (c == 'z') o.Add(_zeta == "zdz" ? "z" : "s");
                 else if (c == Z_CAP) o.Add(_zeta == "sz" ? "z" : "dz");   // Z en mayúscula
                 else if (c == 'v') o.Add("b");
@@ -613,14 +624,14 @@ namespace Esp2Jpn
             return string.Join(" ", o.ToArray());
         }
 
-        // Solo conservan su mayúscula las letras que el script marca (u ü i j g r z a e o);
+        // Solo conservan su mayúscula las letras que el script marca (u ü i j g r z y c a e o);
         // el resto se pasa a minúscula, como hace el filtro de teclado de Esp2XSAMPA.
         static string AplicarMayusculas(string text)
         {
             if (!_caseMarks) return text.ToLowerInvariant();
             StringBuilder sb = new StringBuilder(text.Length);
             foreach (char c in text)
-                sb.Append("uüijgrzaeoUÜIJGRZAEO".IndexOf(c) >= 0 ? c : char.ToLowerInvariant(c));
+                sb.Append("uüijgrzycaeoUÜIJGRZYCAEO".IndexOf(c) >= 0 ? c : char.ToLowerInvariant(c));
             return sb.ToString();
         }
 
@@ -657,7 +668,7 @@ namespace Esp2Jpn
         }
 
         // ------------------------------------------------------------------
-        // Autotest: compara con los resultados del script Python original (Esp2XSAMPA.py v2.6)
+        // Autotest: compara con los resultados del script Python original (Esp2XSAMPA.py v2.8)
         // con la configuración por defecto (ll=Z, zeta=sdz, case=1).
         //   Esp2JpnPatcher.exe --selftest
         // ------------------------------------------------------------------
@@ -734,7 +745,37 @@ namespace Esp2Jpn
             { "vivir", "b' i b' i 4" },
             { "jamás", "h a m a s" },
             { "lluvia", "Z M b j a" },
-            { "Yo", "Z o" },
+            { "Yo", "j o" },
+            { "Ya", "j a" },
+            { "YO", "j o" },
+            { "maYa", "m a j a" },
+            { "aYUda", "a j M d a" },
+            { "Yuvia", "j M b j a" },
+            { "hoY", "o j" },
+            { "reY", "4 e j" },
+            { "sha", "S a" },
+            { "SHA", "S a" },
+            { "shi", "S i" },
+            { "shu", "S M" },
+            { "Sha", "S a" },
+            { "sa", "s a" },
+            { "sol", "s o 4" },
+            { "ash", "a S" },
+            { "cha", "tS a" },
+            { "ce", "s e" },
+            { "Ce", "dz e" },
+            { "CE", "dz e" },
+            { "ci", "s i" },
+            { "Ci", "dz i" },
+            { "Cé", "dz e" },
+            { "Cí", "dz i" },
+            { "Cielo", "dz j e 4 o" },
+            { "cena", "s e n a" },
+            { "Cena", "dz e n a" },
+            { "haCer", "a dz e 4" },
+            { "Ca", "k a" },
+            { "Co", "k o" },
+            { "Cha", "tS a" },
             { "UnA", "M n a" },
             { "güe", "g w e" },
             { "buey", "b w e j" },
@@ -775,7 +816,15 @@ namespace Esp2Jpn
                     { "Z", "llave", "Z a b e" }, { "S", "llave", "S a b e" }, { "j", "llave", "j a b e" },
                     { "Z", "yo", "Z o" },        { "S", "yo", "S o" },        { "j", "yo", "j o" },
                     { "S", "estrella", "e s t 4 e S a" }, { "j", "estrella", "e s t 4 e j a" },
-                    { "S", "lluvia", "S M b j a" },       { "j", "hoy", "o j" }, { "S", "y", "i" }
+                    { "S", "lluvia", "S M b j a" },       { "j", "hoy", "o j" }, { "S", "y", "i" },
+                    // Y en mayúscula ante vocal: j en todos los modos
+                    { "Z", "Yo", "j o" }, { "S", "Yo", "j o" }, { "j", "Yo", "j o" },
+                    { "Z", "maYa", "m a j a" }, { "S", "maYa", "m a j a" }, { "j", "maYa", "m a j a" },
+                    { "Z", "hoY", "o j" }, { "S", "hoY", "o j" },
+                    // sh: S en todos los modos
+                    { "Z", "sha", "S a" }, { "S", "sha", "S a" }, { "j", "sha", "S a" },
+                    // C mayúscula ante e / i: dz en todos los modos
+                    { "Z", "Ce", "dz e" }, { "S", "Ce", "dz e" }, { "j", "Ci", "dz i" }
                 };
                 for (int k = 0; k < llv.GetLength(0); k++)
                 {

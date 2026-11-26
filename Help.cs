@@ -1,4 +1,4 @@
-// Ventana "Atajos y fonemas" (menú Ayuda). Adaptada de Esp2XSAMPA v2.6: mismo texto de reglas y mismo
+// Ventana "Atajos y fonemas" (menú Ayuda). Adaptada de Esp2XSAMPA v2.8: mismo texto de reglas y mismo
 // formato (encabezados, mayúsculas con significado, flechas), cambiando lo que en el parcheador no aplica
 // (teclas globales, bandeja, temas, inicio con Windows) por lo que sí existe aquí.
 using System;
@@ -39,6 +39,7 @@ namespace Esp2Jpn
             "    r \u2192 4        rr \u2192 4 4        l \u2192 4",
             "    u \u2192 M        f \u2192 p\\        j \u2192 h",
             "    z \u2192 s  (o z, si eliges el esquema z \u2192 z, Z \u2192 dz)",
+            "    sh \u2192 S  siempre  (sha \u2192 S a,  shu \u2192 S M)",
             "    i \u2192 j si forma diptongo, si no i (tiene \u2192 t j e n e)",
             "    k g t d p b m r + i \u2192 con apóstrofe  (ri \u2192 4' i,  ti \u2192 t' i,  Ri \u2192 4 4' i)",
             "    ni \u2192 J i      fi \u2192 p\\' i      (s, z, ch, h, etc.: sin apóstrofe)",
@@ -85,6 +86,19 @@ namespace Esp2Jpn
             "      RO \u2192 4 4 o        RRO \u2192 4 4 4 4 o",
             "      pero \u2192 p e 4 o        peRRo \u2192 p e 4 4 4 4 o",
             "",
+            "  C  ante e o i (Ce, Ci) sale siempre como dz, en lugar de s.",
+            "      Ante a, o, u sigue siendo k, y Ch sigue siendo tS.",
+            "      ce \u2192 s e        Ce \u2192 dz e",
+            "      ci \u2192 s i        Ci \u2192 dz i",
+            "      ca \u2192 k a        Ca \u2192 k a",
+            "",
+            "  Y  al inicio de una sílaba (ante vocal) sale siempre como j,",
+            "      sea cual sea el sonido de ll / y elegido en la ventana.",
+            "      Con ll / y \u2192 Z:   yo \u2192 Z o        YO \u2192 j o",
+            "      Con ll / y \u2192 S:   yo \u2192 S o        YO \u2192 j o",
+            "      Con ll / y \u2192 j:   yo \u2192 j o        YO \u2192 j o",
+            "      Al final de la sílaba (hoy, rey) la Y no cambia.",
+            "",
             "  Z  cambia a su variante. En la ventana se elige entre tres esquemas:",
             "",
             "      z \u2192 s,  Z \u2192 dz   (predeterminado)",
@@ -109,8 +123,9 @@ namespace Esp2Jpn
             "      El esquema se guarda en zeta= de Esp2Jpn.ini (sdz, sz o zdz).",
             "",
             "  Ojo: una mayúscula inicial \"por costumbre\" también cuenta",
-            "      (Rosa \u2192 4 4 o s a,  Zapato \u2192 dz a p a t o). Si tus letras",
-            "      llevan mayúscula inicial sin querer, pon case=0.",
+            "      (Rosa \u2192 4 4 o s a,  Zapato \u2192 dz a p a t o,  Yo \u2192 j o,",
+            "      Cena \u2192 dz e n a). Si tus letras llevan mayúscula inicial sin",
+            "      querer, pon case=0.",
             "",
             "Sonido de ll / y:",
             "    Se elige en la ventana (Z, S o j) y se guarda en ll= de",
@@ -119,6 +134,8 @@ namespace Esp2Jpn
             "    S (sheísmo):   llave \u2192 S a b e      yo \u2192 S o",
             "    j (yeísmo):    llave \u2192 j a b e      yo \u2192 j o",
             "    La y sola o al final de palabra no cambia:  y \u2192 i,  hoy \u2192 o j",
+            "    Excepción: la Y en mayúscula ante vocal da siempre j (YO \u2192 j o),",
+            "    sea cual sea la opción elegida (ver la letra Y más arriba).",
             "",
             "Nombres de nota:",
             "    Opcional: americana (C D E...) o solfeo (Do Re Mi...), con",
@@ -199,7 +216,7 @@ namespace Esp2Jpn
             if (back != Color.Empty) rtb.SelectionBackColor = back;
         }
 
-        // Escribe el texto y le da formato: encabezados, letras en mayúscula (U I J R Z) y flechas.
+        // Escribe el texto y le da formato: encabezados, letras en mayúscula (C U I J R Y Z) y flechas.
         void Fill()
         {
             bold = new Font(rtb.Font, FontStyle.Bold);
@@ -213,7 +230,7 @@ namespace Esp2Jpn
             {
                 string line = lines[i];
                 if (Regex.IsMatch(line, @"^\S.*:$")) Format(pos, line.Length, bold, title, Color.Empty);      // encabezado de sección
-                Match m = Regex.Match(line, @"^(\s+)(RR|[UIJRZ])\s\s");                                         // letra en mayúscula
+                Match m = Regex.Match(line, @"^(\s+)(RR|[CUIJRYZ])\s\s");                                         // letra en mayúscula
                 if (m.Success) Format(pos + m.Groups[1].Length, m.Groups[2].Length, bold, Color.White, accent);
                 foreach (Match a in Regex.Matches(line, "\u2192")) Format(pos + a.Index, 1, null, title, Color.Empty);
                 pos += line.Length + 1;                                                                        // + el salto de línea

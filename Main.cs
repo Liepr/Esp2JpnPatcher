@@ -57,7 +57,7 @@ namespace Esp2Jpn
             rbJ = new RadioButton { Text = "j  (yeísmo)", Left = 308, Top = 18, Width = 140 };
             g5.Controls.AddRange(new Control[] { rbZ, rbS, rbJ });
 
-            // Sonido de z (minúscula / MAYÚSCULA), igual que en Esp2XSAMPA v2.6
+            // Sonido de z (minúscula / MAYÚSCULA), igual que en Esp2XSAMPA v2.8
             var g7 = new GroupBox { Text = "Sonido de z  (minúscula / MAYÚSCULA)", Left = 10, Top = 234, Width = 600, Height = 48 };
             rbZsdz = new RadioButton { Text = "z \u2192 s,  Z \u2192 dz", Left = 12, Top = 18, Width = 140, Checked = true };
             rbZsz = new RadioButton { Text = "z \u2192 s,  Z \u2192 z", Left = 160, Top = 18, Width = 140 };

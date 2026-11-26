@@ -1,14 +1,51 @@
-Esp2Jpn para VOCALOID7  -  interfaz clásica   (v5.0)
+Esp2Jpn para VOCALOID7  -  interfaz clásica   (v5.2)
 ====================================================
 
 QUÉ HACE
   Parchea VOCALOID7.dll para que, al escribir una letra en español en UNA nota de un banco
   japonés clásico (idioma de la nota = Japonés), los fonemas X-SAMPA se rellenen solos con la
-  lógica de Esp2XSAMPA.py (v2.6), p. ej.:
+  lógica de Esp2XSAMPA.py (v2.8), p. ej.:
      hola -> o 4 a     cantando -> k a n t a n d o     cielo -> s j e 4 o     ñu -> J M
      rico -> 4' i k o  tIene -> t' i e n e             piO -> p' o
+     sha -> S a        Yo -> j o  (Y mayúscula ante vocal: siempre j)
+     Ce -> dz e        Ci -> dz i (C mayúscula ante e / i: siempre dz)
   Solo actúa si la nota es de idioma japonés y la letra es texto latino de UNA palabra/sílaba.
   Si algo falla, el editor se comporta exactamente como antes.
+
+NOVEDADES v5.2  (Esp2JpnPatcher v1.9, conversor de Esp2XSAMPA v2.8)
+  1. C mayúscula ante e / i = dz.  Una C escrita en MAYÚSCULA antes de e o i (Ce, Ci, también con tilde: Cé, Cí) da siempre
+     el fonema dz en lugar de s, sea cual sea el esquema de la z:
+        ce -> s e     Ce -> dz e     CE -> dz e         ci -> s i     Ci -> dz i     Cielo -> dz j e 4 o     haCer -> a dz e 4
+     La c minúscula no cambia (ce -> s e). Ante a, o, u la C mayúscula sigue dando k (Ca -> k a, Co -> k o) y Ch sigue
+     dando tS. Solo se aplica con case=1 (lo predeterminado); con case=0 las mayúsculas se ignoran y la C se lee como c.
+     OJO: una C mayúscula inicial "por costumbre" también cuenta (Cena -> dz e n a, antes s e n a). Si tus letras llevan
+     mayúscula inicial sin querer, pon case=0.
+  2. Atajos y fonemas (menú Ayuda, F1): agregada la sección de la C mayúscula (con ejemplos), la C se resalta como las demás
+     letras con significado y el "Ojo" de la mayúscula inicial incluye Cena. Igual que en Esp2XSAMPA v2.8.
+  3. Autotest ampliado: casos de Ce, Ci, CE, Cé, Cí, Cielo, haCer, Ca, Co y Cha, y de Ce / Ci en los modos de ll / y.
+  IMPORTANTE: recompilar y volver a pulsar "Aplicar / re-aplicar" para que VOCALOID7 use el Esp2JpnHook.dll nuevo.
+  Sin compilar ni probar en VOCALOID7 real (aquí no hay Mono ni Windows); la lógica del conversor sí se comprobó con
+  Esp2XSAMPA.py v2.8 (mismos resultados en los casos del autotest).
+
+NOVEDADES v5.1  (Esp2JpnPatcher v1.8, conversor de Esp2XSAMPA v2.7)
+  1. Y mayúscula = j.  Una Y escrita en MAYÚSCULA al inicio de una sílaba (antes de una vocal) da siempre el fonema j,
+     sea cual sea la opción de la ventana "Sonido de ll / y" (Z, S o j):
+        ll / y = Z:   yo -> Z o     YO -> j o          ll / y = S:   yo -> S o     YO -> j o
+        ll / y = j:   yo -> j o     YO -> j o          maYa -> m a j a      Yuvia -> j M b j a
+     La y minúscula no cambia: sigue el sonido elegido en "Sonido de ll / y". La Y mayúscula al final de la sílaba o sola
+     (hoY -> o j, Y -> i) tampoco cambia: sigue funcionando como la y minúscula. Solo se aplica con case=1 (lo predeterminado);
+     con case=0 las mayúsculas se ignoran y la Y se lee como y. OJO: una Y mayúscula inicial "por costumbre" también cuenta
+     (Yo -> j o, antes Z o con ll=Z). Si tus letras llevan mayúscula inicial sin querer, pon case=0.
+  2. sh = S siempre.  Las letras "sh" forman siempre el fonema S (mayúscula), igual que "ch" forma tS, y sin importar
+     el sonido de ll / y ni las mayúsculas:   sha -> S a     shi -> S i     shu -> S M     SHA -> S a
+     (una s sola sigue dando s: sa -> s a). Si la s y la h están en sílabas distintas, sepáralas con guion: el guion corta
+     la palabra y no se forma sh (des-ha-cer -> d e s a s e 4); en cambio "deshacer" escrito junto da d e S a s e 4.
+  3. Atajos y fonemas (menú Ayuda, F1): agregados la línea "sh -> S" en la lista de minúsculas, la sección de la Y mayúscula
+     (con los tres modos de ll / y) y la nota sobre la Y al inicio de sílaba en "Sonido de ll / y". La Y se resalta como
+     las demás letras con significado. Igual que en Esp2XSAMPA v2.7.
+  4. Autotest ampliado: casos de Y mayúscula en los tres modos de ll / y y de sh. El caso "Yo" pasa de Z o a j o.
+  IMPORTANTE: recompilar y volver a pulsar "Aplicar / re-aplicar" para que VOCALOID7 use el Esp2JpnHook.dll nuevo.
+  Sin compilar ni probar en VOCALOID7 real (aquí no hay Mono ni Windows); la lógica del conversor sí se comprobó con Esp2XSAMPA.py v2.7 (mismos resultados en los casos del autotest).
 
 NOVEDADES v5.0  (Esp2JpnPatcher v1.7)
   Vuelve la opción de la z, ahora con TRES esquemas (igual que Esp2XSAMPA v2.6), en la ventana "Sonido de z (minúscula / MAYÚSCULA)":
@@ -134,19 +171,25 @@ Esp2Jpn.ini (junto a VOCALOID7.dll; se relee al cambiarlo)
   langs=0         idioma de nota a convertir (0 = japonés, * = todos, o lista 0,1)
   nosplit=1|0     1 = todos los fonemas en la nota donde se escribe la letra (por defecto)
   words=1|0       1 = varias palabras (Insert Lyrics) -> una palabra por nota (por defecto)
-  case=1|0        1 = las mayúsculas U I J G R Z A E O significan lo mismo que en Esp2XSAMPA
+  case=1|0        1 = las mayúsculas U I J G R C Y Z A E O significan lo mismo que en Esp2XSAMPA
                   (por defecto). 0 = se ignoran (todo se lee como minúscula).
   ll=Z|S|j        sonido de "ll" y de "y" consonántica (Z zheísmo, S sheísmo, j yeísmo); se cambia desde la ventana
+                  (la Y mayúscula ante vocal da siempre j, sea cual sea este valor; "sh" da siempre S)
   zeta=sdz|sz|zdz esquema de la z (minúscula / MAYÚSCULA): sdz = s / dz (por defecto), sz = s / z, zdz = z / dz;
                   se cambia desde la ventana
   notenames=1|0, notation=american|solfege, accidentals=sharps|flats
                   los lee solo el parcheador para recordar tu elección de nombres de nota (el hook los ignora)
 
+MINÚSCULAS CON REGLA PROPIA
+  sh = S siempre (sha -> S a, shi -> S i); ch = tS (chico -> tS i k o). La h sola es muda (hola -> o 4 a).
+
 MAYÚSCULAS (con case=1; iguales a Bloq Mayús/Shift en el script)
   U = M siempre (CUANDO -> k M a n d o)      I = i siempre, nunca j (baIle -> b a i 4 e)
   J / G(i) ante i = C, ante u = p\ M         R = rr (RO -> 4 4 o)      RR = 4 4 4 4 (erre fuerte)      Z = dz (con zeta=sdz; z -> s, Z -> dz)
+  Y ante vocal (inicio de sílaba) = j siempre, en los tres modos de ll / y (YO -> j o; yo sigue el modo elegido)
+  C ante e / i = dz siempre (Ce -> dz e, Ci -> dz i; ce -> s e). Ante a, o, u sigue siendo k y Ch sigue siendo tS
   A E O (última vocal) tras consonante + i: la i se absorbe (piO -> p' o)
-  OJO: una mayúscula inicial "por costumbre" también cuenta (Rosa -> 4 4 o s a, Zapato -> dz a ...).
+  OJO: una mayúscula inicial "por costumbre" también cuenta (Rosa -> 4 4 o s a, Zapato -> dz a ..., Yo -> j o, Cena -> dz e n a).
   Si tus letras llevan mayúscula inicial sin querer, pon case=0.
 
 LIMITACIONES / A TENER EN CUENTA
@@ -160,7 +203,7 @@ LIMITACIONES / A TENER EN CUENTA
     entrada), la guarda puede no activarse; el comportamiento es entonces el de la v2.
   * El texto con espacios no se convierte aquí: si el editor lo reparte en varias notas, cada nota
     recibe su palabra y se convierte por separado. Guion y apóstrofe dentro de una palabra solo
-    unen fonemas (can-tan-do -> todo en una nota).
+    unen fonemas (can-tan-do -> todo en una nota; el guion también separa "s" y "h": des-ha-cer no forma sh).
   * Una actualización de VOCALOID7 reemplaza el DLL: vuelve a aplicar el parche (con VOCALOID7 cerrado).
   * Si el DLL tiene firma Authenticode, el parche la invalida.
   * Con el parche activo, las letras en romaji (ka, shi...) en notas japonesas también se leen como
