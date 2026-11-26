@@ -7,6 +7,7 @@
 Esp2JpnPatcher modifica los fonemas de `VOCALOID7.dll` para que, al teclear una letra en español en una nota de un banco japonés, el editor genere los fonemas por ti, con la misma lógica que [Esp2XSAMPA](https://esp2xsampa.nekoweb.org/).
 
 ![Versión](https://img.shields.io/badge/versión-1.7-1f6feb)
+![Licencia](https://img.shields.io/badge/licencia-GPL--3.0-2ea44f)
 ![Plataforma](https://img.shields.io/badge/Windows-0078d7?logo=windows&logoColor=white)
 ![VOCALOID7](https://img.shields.io/badge/VOCALOID7-japonés-6f42c1)
 ![.NET](https://img.shields.io/badge/.NET%20Framework-4.x-512bd4?logo=dotnet&logoColor=white)
@@ -156,7 +157,9 @@ En Windows, usa `build.bat`. Necesita `Mono.Cecil.dll` (viene en `dist/`).
 
 Consulta el [changelog completo](CHANGELOG.md).
 
-## ⚖️ Créditos
+## ⚖️ Licencia
+
+Esp2JpnPatcher es software libre bajo la [GNU GPL v3](LICENSE), igual que Esp2XSAMPA. Puedes usarlo, modificarlo y compartirlo, pero toda versión modificada que distribuyas debe seguir siendo libre y con su código fuente disponible bajo la misma licencia.
 
 Usa [Mono.Cecil](https://github.com/jbevain/cecil) (MIT) para modificar el ensamblado.
 
@@ -164,6 +167,6 @@ Usa [Mono.Cecil](https://github.com/jbevain/cecil) (MIT) para modificar el ensam
 
 <div align="center">
 
-Creado por **Liper** · Herramienta de fans, sin relación con YAMAHA ni con los creadores de ningún voicebank. VOCALOID es marca de sus respectivos dueños.
+Creado por **Liper** · Copyright © 2026 · Herramienta de fans, sin relación con YAMAHA ni con los creadores de ningún voicebank. VOCALOID es marca de sus respectivos dueños.
 
 </div>
