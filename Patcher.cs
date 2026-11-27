@@ -17,7 +17,7 @@ namespace Esp2Jpn
         public string Notation = "american";         // american (C D E...) | solfege (Do Re Mi...)
         public string Accidentals = "sharps";        // sharps | flats
         public string Yeismo;                        // sonido de ll / y: Z | S | j  (null = no tocar el .ini)
-        public string Zeta;                          // esquema de z y C (minúscula / MAYÚSCULA): sdz | sts | sch | sz  (null = no tocar el .ini)
+        public string Zeta;                          // esquema de z y C (minúscula / MAYÚSCULA): sdz | sts | sz  (null = no tocar el .ini)
 
         public static string NormYeismo(string v)
         {
@@ -31,7 +31,7 @@ namespace Esp2Jpn
         public static string NormZeta(string v)
         {
             v = (v ?? "").Trim().ToLowerInvariant();
-            return v == "sdz" || v == "sts" || v == "sch" || v == "sz" ? v : null;
+            return v == "sdz" || v == "sts" || v == "sz" ? v : null;
         }
 
         public static PatchOptions FromIni(string dll)
@@ -46,7 +46,7 @@ namespace Esp2Jpn
             return o;
         }
 
-        // Para el modo consola:  ll=Z|S|j   zeta=sdz|sts|sch|sz   notes=none|american|solfege   acc=sharps|flats
+        // Para el modo consola:  ll=Z|S|j   zeta=sdz|sts|sz   notes=none|american|solfege   acc=sharps|flats
         public void Apply(string key, string value)
         {
             key = key.Trim().ToLowerInvariant(); value = value.Trim().ToLowerInvariant();
@@ -63,7 +63,7 @@ namespace Esp2Jpn
 
     public static class Patcher
     {
-        public static string ZetaLabel(string z) { return z == "sz" ? "z \u2192 s, Z / C \u2192 z" : z == "sts" ? "z \u2192 s, Z / C \u2192 ts" : z == "sch" ? "z \u2192 s, Z / C \u2192 tS" : "z \u2192 s, Z / C \u2192 dz"; }
+        public static string ZetaLabel(string z) { return z == "sz" ? "z \u2192 s, Z / C \u2192 z" : z == "sts" ? "z \u2192 s, Z / C \u2192 ts" : "z \u2192 s, Z / C \u2192 dz"; }
         public const string HookAsm = "Esp2JpnHook";
         const string LegacyHookDll = "HispaVoxHook.dll";   // nombre del hook en la v1.5 (renombrada y luego revertida) (se limpia al re-aplicar / restaurar)
         const string SvcType  = "Yamaha.VOCALOID.VSM.WIVSMPhonemeService";
@@ -441,7 +441,7 @@ namespace Esp2Jpn
                 File.Copy(hookDllSource, Path.Combine(dir, HookAsm + ".dll"), true);
                 try { string old = Path.Combine(dir, LegacyHookDll); if (File.Exists(old)) { File.Delete(old); log("Hook de la versión anterior eliminado: " + LegacyHookDll); } } catch { }
                 string ini = Path.Combine(dir, "Esp2Jpn.ini");
-                if (!File.Exists(ini)) File.WriteAllText(ini, "; enabled=0 desactiva la conversion sin restaurar el DLL\r\nenabled=1\r\n; langs: idiomas de nota a convertir (0=japones, * = todos)\r\nlangs=0\r\n; nosplit=1: todos los fonemas en la nota donde se escribe la letra (VOCALOID no reparte silabas en notas contiguas)\r\nnosplit=1\r\n; case=1: las mayusculas U I J G R C Y Z A E O tienen el significado de Esp2XSAMPA (0 = ignorarlas)\r\ncase=1\r\n; words=1: texto con varias palabras (Insert Lyrics) -> una palabra por nota, separadas por espacio (0 = comportamiento del motor)\r\nwords=1\r\n; ll: sonido de ll / y  (Z, S o j)\r\nll=Z\r\n; zeta: sonido de z y c (minuscula / MAYUSCULA; la C solo ante e, i)  (sdz = s / dz, sts = s / ts, sch = s / tS, sz = s / z)\r\nzeta=sdz\r\n; nombres de nota (solo los usa el parcheador): notenames=1|0  notation=american|solfege  accidentals=sharps|flats\r\nnotenames=0\r\nnotation=american\r\naccidentals=sharps\r\n");
+                if (!File.Exists(ini)) File.WriteAllText(ini, "; enabled=0 desactiva la conversion sin restaurar el DLL\r\nenabled=1\r\n; langs: idiomas de nota a convertir (0=japones, * = todos)\r\nlangs=0\r\n; nosplit=1: todos los fonemas en la nota donde se escribe la letra (VOCALOID no reparte silabas en notas contiguas)\r\nnosplit=1\r\n; case=1: las mayusculas U I J G R C Y Z A E O tienen el significado de Esp2XSAMPA (0 = ignorarlas)\r\ncase=1\r\n; words=1: texto con varias palabras (Insert Lyrics) -> una palabra por nota, separadas por espacio (0 = comportamiento del motor)\r\nwords=1\r\n; ll: sonido de ll / y  (Z, S o j)\r\nll=Z\r\n; zeta: sonido de z y c (minuscula / MAYUSCULA; la C solo ante e, i)  (sdz = s / dz, sts = s / ts, sz = s / z)\r\nzeta=sdz\r\n; nombres de nota (solo los usa el parcheador): notenames=1|0  notation=american|solfege  accidentals=sharps|flats\r\nnotenames=0\r\nnotation=american\r\naccidentals=sharps\r\n");
                 // recordar las opciones elegidas (el hook solo lee ll; el resto lo lee el parcheador al abrirse)
                 if (opt.Yeismo != null) IniSet(dll, "ll", opt.Yeismo);
                 if (opt.Zeta != null) IniSet(dll, "zeta", opt.Zeta);

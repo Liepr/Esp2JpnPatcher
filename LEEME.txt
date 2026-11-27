@@ -1,10 +1,10 @@
-Esp2Jpn para VOCALOID7  -  interfaz clásica   (v5.3)
+Esp2Jpn para VOCALOID7  -  interfaz clásica   (v5.3.1)
 ====================================================
 
 QUÉ HACE
   Parchea VOCALOID7.dll para que, al escribir una letra en español en UNA nota de un banco
   japonés clásico (idioma de la nota = Japonés), los fonemas X-SAMPA se rellenen solos con la
-  lógica de Esp2XSAMPA.py (v3.0), p. ej.:
+  lógica de Esp2XSAMPA.py (v3.0.1), p. ej.:
      hola -> o 4 a     cantando -> k a n t a n d o     cielo -> s j e 4 o     ñu -> J M
      rico -> 4' i k o  tIene -> t' i e n e             piO -> p' o
      sha -> S a        Yo -> j o  (Y mayúscula ante vocal: siempre j)
@@ -12,28 +12,32 @@ QUÉ HACE
   Solo actúa si la nota es de idioma japonés y la letra es texto latino de UNA palabra/sílaba.
   Si algo falla, el editor se comporta exactamente como antes.
 
+NOVEDADES v5.3.1  (Esp2JpnPatcher v2.0.1, conversor de Esp2XSAMPA v3.0.1)  -  HOTFIX
+  Se eliminó el esquema z -> s, Z / C -> tS (sch), que producía un sonido incorrecto. Quedan tres esquemas: sdz (predeterminado),
+  sts y sz. Si tu Esp2Jpn.ini tiene zeta=sch, el valor ya no es válido y se usa el predeterminado (sdz). Se quitó el botón de la
+  ventana, la sección correspondiente de "Atajos y fonemas" y los casos del autotest. Lo demás de la v5.3 no cambia.
+  IMPORTANTE: recompilar y volver a pulsar "Aplicar / re-aplicar".
+
 NOVEDADES v5.3  (Esp2JpnPatcher v2.0, conversor de Esp2XSAMPA v3.0)
   1. La C mayúscula ante e / i sigue al esquema de la z.  Antes la C de Ce / Ci daba siempre dz; ahora cambia igual que la
      Z mayúscula, según el esquema elegido en la ventana (la c y la z minúsculas siempre dan s):
         z -> s,  Z / C -> dz   (PREDETERMINADO)   za -> s a   ZA -> dz a   ce -> s e   Ce -> dz e   Ci -> dz i
         z -> s,  Z / C -> ts   (NUEVO)            za -> s a   ZA -> ts a   ce -> s e   Ce -> ts e   Ci -> ts i
-        z -> s,  Z / C -> tS   (NUEVO)            za -> s a   ZA -> tS a   ce -> s e   Ce -> tS e   Ci -> tS i
         z -> s,  Z / C -> z                       za -> s a   ZA -> z a    ce -> s e   Ce -> z e    Ci -> z i
      Con el esquema predeterminado nada cambia respecto de la v5.2. Ante a, o, u la C mayúscula sigue dando k y Ch sigue
      dando tS, sea cual sea el esquema.
   2. Esquema nuevo z -> s, Z / C -> ts (sts).  La ts (つ) lleva un golpe de "t" antes de la s: un ataque marcado como el de la
      dz, pero sordo, igual que la s. Es la segunda opción de la ventana.
-     La tS (ち) es la misma africada de la "ch": ataque marcado y sordo, más "chicheante" que la ts; es la tercera opción
-     (z -> s, Z / C -> tS, clave sch). La antigua z -> s, Z -> z pasa a ser la cuarta.
+     La antigua z -> s, Z -> z pasa a ser la tercera.
   3. Se quitó el esquema z -> z, Z -> dz (zdz). Si tu Esp2Jpn.ini tiene zeta=zdz, el valor ya no es válido y se usa el
-     predeterminado (sdz). El valor de zeta= ahora puede ser sdz, sts, sch o sz.
-  4. La ventana dice "Sonido de z / c (minúscula / MAYÚSCULA)" y los cuatro botones muestran "Z / C".
-  5. Atajos y fonemas (menú Ayuda, F1): la sección de la C y la de la Z describen los cuatro esquemas (con ejemplos de Ce / Ci).
-     Igual que en Esp2XSAMPA v3.0.
-  6. Autotest ampliado: casos de ce, Ce, Ci, Cielo, haCer, Ca y Cha en los cuatro esquemas.
+     predeterminado (sdz). El valor de zeta= ahora puede ser sdz, sts o sz.
+  4. La ventana dice "Sonido de z / c (minúscula / MAYÚSCULA)" y los tres botones muestran "Z / C".
+  5. Atajos y fonemas (menú Ayuda, F1): la sección de la C y la de la Z describen los tres esquemas (con ejemplos de Ce / Ci).
+     Igual que en Esp2XSAMPA v3.0.1.
+  6. Autotest ampliado: casos de ce, Ce, Ci, Cielo, haCer, Ca y Cha en los tres esquemas.
   IMPORTANTE: recompilar y volver a pulsar "Aplicar / re-aplicar" para que VOCALOID7 use el Esp2JpnHook.dll nuevo.
   Sin compilar ni probar en VOCALOID7 real (aquí no hay Mono ni Windows); la lógica del conversor sí se comprobó con
-  Esp2XSAMPA.py v3.0 (mismos resultados en los casos del autotest).
+  Esp2XSAMPA.py v3.0.1 (mismos resultados en los casos del autotest).
 
 NOVEDADES v5.2  (Esp2JpnPatcher v1.9, conversor de Esp2XSAMPA v2.8)
   1. C mayúscula ante e / i = dz.  Una C escrita en MAYÚSCULA antes de e o i (Ce, Ci, también con tilde: Cé, Cí) da siempre
@@ -198,7 +202,7 @@ Esp2Jpn.ini (junto a VOCALOID7.dll; se relee al cambiarlo)
                   (por defecto). 0 = se ignoran (todo se lee como minúscula).
   ll=Z|S|j        sonido de "ll" y de "y" consonántica (Z zheísmo, S sheísmo, j yeísmo); se cambia desde la ventana
                   (la Y mayúscula ante vocal da siempre j, sea cual sea este valor; "sh" da siempre S)
-  zeta=sdz|sts|sch|sz esquema de z y C (minúscula / MAYÚSCULA): sdz = s / dz (por defecto), sts = s / ts, sch = s / tS, sz = s / z;
+  zeta=sdz|sts|sz esquema de z y C (minúscula / MAYÚSCULA): sdz = s / dz (por defecto), sts = s / ts, sz = s / z;
                   la C mayúscula ante e / i sigue a la Z mayúscula; se cambia desde la ventana
   notenames=1|0, notation=american|solfege, accidentals=sharps|flats
                   los lee solo el parcheador para recordar tu elección de nombres de nota (el hook los ignora)
@@ -208,9 +212,9 @@ MINÚSCULAS CON REGLA PROPIA
 
 MAYÚSCULAS (con case=1; iguales a Bloq Mayús/Shift en el script)
   U = M siempre (CUANDO -> k M a n d o)      I = i siempre, nunca j (baIle -> b a i 4 e)
-  J / G(i) ante i = C, ante u = p\ M         R = rr (RO -> 4 4 o)      RR = 4 4 4 4 (erre fuerte)      Z = dz / ts / tS / z según zeta= (z -> s siempre)
+  J / G(i) ante i = C, ante u = p\ M         R = rr (RO -> 4 4 o)      RR = 4 4 4 4 (erre fuerte)      Z = dz / ts / z según zeta= (z -> s siempre)
   Y ante vocal (inicio de sílaba) = j siempre, en los tres modos de ll / y (YO -> j o; yo sigue el modo elegido)
-  C ante e / i = igual que la Z según zeta= (sdz: Ce -> dz e;  sts: Ce -> ts e;  sch: Ce -> tS e;  sz: Ce -> z e;  ce -> s e siempre). Ante a, o, u sigue siendo k y Ch sigue siendo tS
+  C ante e / i = igual que la Z según zeta= (sdz: Ce -> dz e;  sts: Ce -> ts e;  sz: Ce -> z e;  ce -> s e siempre). Ante a, o, u sigue siendo k y Ch sigue siendo tS
   A E O (última vocal) tras consonante + i: la i se absorbe (piO -> p' o)
   OJO: una mayúscula inicial "por costumbre" también cuenta (Rosa -> 4 4 o s a, Zapato -> dz a ..., Yo -> j o, Cena -> dz e n a; con zeta=sdz).
   Si tus letras llevan mayúscula inicial sin querer, pon case=0.

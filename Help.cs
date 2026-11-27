@@ -1,4 +1,4 @@
-// Ventana "Atajos y fonemas" (menú Ayuda). Adaptada de Esp2XSAMPA v3.0: mismo texto de reglas y mismo
+// Ventana "Atajos y fonemas" (menú Ayuda). Adaptada de Esp2XSAMPA v3.0.1: mismo texto de reglas y mismo
 // formato (encabezados, mayúsculas con significado, flechas), cambiando lo que en el parcheador no aplica
 // (teclas globales, bandeja, temas, inicio con Windows) por lo que sí existe aquí.
 using System;
@@ -92,7 +92,6 @@ namespace Esp2Jpn
             "      sigue siendo tS.",
             "      Con z \u2192 s,  Z / C \u2192 dz:   ce \u2192 s e   Ce \u2192 dz e   Ci \u2192 dz i",
             "      Con z \u2192 s,  Z / C \u2192 ts:   ce \u2192 s e   Ce \u2192 ts e   Ci \u2192 ts i",
-            "      Con z \u2192 s,  Z / C \u2192 tS:   ce \u2192 s e   Ce \u2192 tS e   Ci \u2192 tS i",
             "      Con z \u2192 s,  Z / C \u2192 z:    ce \u2192 s e   Ce \u2192 z e    Ci \u2192 z i",
             "      ca \u2192 k a        Ca \u2192 k a",
             "",
@@ -104,7 +103,7 @@ namespace Esp2Jpn
             "      Al final de la sílaba (hoy, rey) la Y no cambia.",
             "",
             "  Z  cambia a su variante, y con ella la C de Ce / Ci. En la",
-            "      ventana se elige entre cuatro esquemas:",
+            "      ventana se elige entre tres esquemas:",
             "",
             "      z \u2192 s,  Z / C \u2192 dz   (predeterminado)",
             "        La s sorda (\u3055) es el sonido real de la z espa\u00f1ola, y se",
@@ -120,13 +119,6 @@ namespace Esp2Jpn
             "        \u00datil si la dz suena demasiado sonora.",
             "        za \u2192 s a        ZA \u2192 ts a        Ce \u2192 ts e",
             "",
-            "      z \u2192 s,  Z / C \u2192 tS",
-            "        La s sorda se mantiene con la z min\u00fascula. La Z may\u00fascula",
-            "        (y la C de Ce, Ci) da la tS (\u3061), la misma africada de la",
-            "        \"ch\": ataque marcado y sordo, m\u00e1s \"chicheante\" que la ts.",
-            "        \u00datil si la ts suena corta o seca.",
-            "        za \u2192 s a        ZA \u2192 tS a        Ce \u2192 tS e",
-            "",
             "      z \u2192 s,  Z / C \u2192 z",
             "        La s (\u3055) es el sonido real de la z espa\u00f1ola. La z",
             "        sonora (\u3056) suena m\u00e1s suave y \"zumbada\": \u00fatil si la s",
@@ -134,7 +126,7 @@ namespace Esp2Jpn
             "        la C de Ce, Ci.",
             "        za \u2192 s a        ZA \u2192 z a        Ce \u2192 z e",
             "",
-            "      El esquema se guarda en zeta= de Esp2Jpn.ini (sdz, sts, sch o sz).",
+            "      El esquema se guarda en zeta= de Esp2Jpn.ini (sdz, sts o sz).",
             "",
             "  Ojo: una mayúscula inicial \"por costumbre\" también cuenta",
             "      (Rosa \u2192 4 4 o s a,  Zapato \u2192 dz a p a t o,  Yo \u2192 j o,",
